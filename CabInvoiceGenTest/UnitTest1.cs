@@ -76,7 +76,20 @@ namespace CabInvoiceGenTest
             {
                 Assert.AreEqual(CabInvoiceException.ExceptionType.NULL_RIDES, ex.type);
             }
+        }
+        [Test]
+        public void Given_ValidData_Should_Return_EnhancedCabInvoiceSummary()
+        {
+            rides = new Ride[] { new Ride(10, 60), new Ride(5, 30), new Ride(3, 20) };
+            invoiceGenerator = new InvoiceGenerator();
 
+            double fare = invoiceGenerator.CalculateFare(rides);
+            double average = fare / rides.Length;
+            InvoiceSummary data = new InvoiceSummary(rides.Length, fare);
+
+            Assert.AreEqual(data.numberOfRides, rides.Length);
+            Assert.AreEqual(data.averageFare, average);
+            Assert.AreEqual(data.totalFare, fare);
         }
     }
 }
