@@ -7,7 +7,8 @@ namespace CabInvoiceGenerator
     public class InvoiceGenerator
     {
         //Variable.
-        private RideRepository rideRepository;
+        public RideRepository rideRepository;
+        Dictionary<string, List<Ride>> userRides = null;
 
         //Constants.
         private readonly double MINIMUM_COST_PER_KM = 10;
@@ -73,6 +74,67 @@ namespace CabInvoiceGenerator
             }
             return totalFare;
         }
-    }
+        /// <summary>
+        /// Function to Add Rides For UserId.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="rides"></param>
+        public void AddRides(string userId, Ride[] rides)
+        {
+            try
+            {
+                //Adding Ride To The Specified User.
+                rideRepository.AddRide(userId, rides);
+            }
+            catch (CabInvoiceException)
+            {
+                if (rides == null)
+                {
+                    throw new CabInvoiceException(CabInvoiceException.ExceptionType.NULL_RIDES, "Rides Are Null");
+                }
+            }
+        }
+        /// <summary>
+        /// Function To Calculate Total Fare and Generating Summary For Multiple Rides.
+        /// </summary>
+        /// <param name="rides"></param>
+        /// <returns></returns>
+        public InvoiceSummary CalculateFareOnGivingUserId(Ride[] rides)
+        {
+            double totalFare = 0;
+            try
+            {
+                //Calculating Total Fare For All Rides.
+                foreach (Ride ride in rides)
+                {
+                    totalFare += this.CalculateFare(ride.distance, ride.time);
+                }
+            }
+            catch (CabInvoiceException)
+            {
+                if (rides == null)
+                {
+                    throw new CabInvoiceException(CabInvoiceException.ExceptionType.NULL_RIDES, "Rides Are Null");
+                }
+            }
+            return new InvoiceSummary(rides.Length, totalFare);
+        }
 
+        /// <summary>
+        /// Function To Get Rides List As an Array for specified UserId. 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public Ride[] GetRides(string userId)
+        {
+            try
+            {
+                return this.userRides[userId].ToArray();
+            }
+            catch (Exception)
+            {
+                throw new CabInvoiceException(CabInvoiceException.ExceptionType.INVALID_USER_ID, "Invalid UserID");
+            }
+        }
+    }
 }
