@@ -7,14 +7,40 @@ namespace CabInvoiceGenerator
     public class InvoiceGenerator
     {
         //Variable.
+        RideType rideType;
         public RideRepository rideRepository;
         Dictionary<string, List<Ride>> userRides = null;
 
         //Constants.
-        private readonly double MINIMUM_COST_PER_KM = 10;
-        private readonly int COST_PER_TIME=1;
-        private readonly double MINIMUM_FARE=5;
+        private readonly double MINIMUM_COST_PER_KM;
+        private readonly int COST_PER_TIME;
+        private readonly double MINIMUM_FARE;
 
+        public InvoiceGenerator(RideType rideType)
+        {
+            this.rideType = rideType;
+            this.rideRepository = new RideRepository();
+            try
+            {
+                //If Ride type is Premium Then Rates Set For Premium else For Normal.
+                if (rideType.Equals(RideType.PREMIUM))
+                {
+                    this.MINIMUM_COST_PER_KM = 15;
+                    this.COST_PER_TIME = 2;
+                    this.MINIMUM_FARE = 20;
+                }
+                else if (rideType.Equals(RideType.NORMAL))
+                {
+                    this.MINIMUM_COST_PER_KM = 10;
+                    this.COST_PER_TIME = 1;
+                    this.MINIMUM_FARE = 5;
+                }
+            }
+            catch (CabInvoiceException)
+            {
+                throw new CabInvoiceException(CabInvoiceException.ExceptionType.INVALID_RIDE_TYPE, "Invalid Ride Type");
+            }
+        }
         /// Constrcutor To Create RideRepository instance.
         /// </summary>
         /// <summary>
@@ -38,6 +64,10 @@ namespace CabInvoiceGenerator
             }
             catch (CabInvoiceException)
             {
+                if (rideType.Equals(null))
+                {
+                    throw new CabInvoiceException(CabInvoiceException.ExceptionType.INVALID_RIDE_TYPE, "Invalid Ride Type");
+                }
                 if (distance <= 0)
                 {
                     throw new CabInvoiceException(CabInvoiceException.ExceptionType.INVALID_DISTANCE, "Invalid Distance");

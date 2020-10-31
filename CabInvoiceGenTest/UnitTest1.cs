@@ -19,6 +19,7 @@ namespace CabInvoiceGenTest
         //Test case 1 - Should return cab fare on giving valid inputs
         public void Given_Valid_DistanceAndTime_Should_Return_CabFare()
         {
+            invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
             double distance = 10; // in Km
             int time = 60;  // in minutes
             double fare = invoiceGenerator.CalculateFare(distance, time);
@@ -31,6 +32,7 @@ namespace CabInvoiceGenTest
         {
             try
             {
+                invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
                 double distance = -10; //in km
                 int time = 60;   //in minutes
                 double fare = invoiceGenerator.CalculateFare(distance, time);
@@ -46,6 +48,7 @@ namespace CabInvoiceGenTest
         {
             try
             {
+                invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
                 double distance = 10; //in km
                 int time = -20;   //in minutes
                 double fare = invoiceGenerator.CalculateFare(distance, time);
@@ -59,11 +62,9 @@ namespace CabInvoiceGenTest
         //Test case 4 - Should return total fare on having multiple rides
         public void Given_MultipleNoOfRides_Should_Return_TotalFare()
         {
-
+            invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
             rides = new Ride[] { new Ride(10, 60), new Ride(5, 30), new Ride(3, 20) };
-            invoiceGenerator = new InvoiceGenerator();
             double fare = invoiceGenerator.CalculateFare(rides);
-
             Assert.AreEqual(290, fare);
 
         }
@@ -86,6 +87,7 @@ namespace CabInvoiceGenTest
         //Test case 6 - Should return enhanced cab invoice summary on giving valid data
         public void Given_ValidData_Should_Return_EnhancedCabInvoiceSummary()
         {
+            invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
             rides = new Ride[] { new Ride(10, 60), new Ride(5, 30), new Ride(3, 20) };
             invoiceGenerator = new InvoiceGenerator();
 
@@ -103,6 +105,7 @@ namespace CabInvoiceGenTest
         {
             try
             {
+                invoiceGenerator = new InvoiceGenerator(RideType.NORMAL);
                 rides = new Ride[] { new Ride(5, 20), new Ride(3, 15), new Ride(2, 10) };
                 string userId = "123";
                 RideRepository rideRepository = new RideRepository();
@@ -114,7 +117,17 @@ namespace CabInvoiceGenTest
             {
                 Assert.AreEqual(CabInvoiceException.ExceptionType.INVALID_USER_ID, ex.type);
             }
-
+        }
+        [Test]
+        //Test case 8 - Should return output for premium class rides when given premium ride details
+        public void Given_PremiumRideDetails_ShouldReturn_FareForPremiumRide()
+        {
+            invoiceGenerator = new InvoiceGenerator(RideType.PREMIUM);
+            double distance = 2.0;
+            int time = 5;
+            double fare = invoiceGenerator.CalculateFare(distance, time);
+            double expected = 40;
+            Assert.AreEqual(expected, fare);
         }
     }
 }
